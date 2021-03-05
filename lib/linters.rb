@@ -49,3 +49,42 @@ end
 
     log_error("line:#{indx} Extra space detected at block end") if @checker.file_lines[indx - 1].strip.empty?
   end
+
+  def log_error(error_msg)
+    @errors << error_msg
+  end
+end
+
+  def check_indentation
+    msg = 'Use 2 spaces for indentation.'
+    cur_val = 0
+    indent_val = 0
+
+    @checker.file_lines.each_with_index do |str_val, indx|
+      strip_line = str_val.strip.split(' ')
+      exp_val = cur_val * 2
+      res_word = %w[class def if elsif until module unless begin case]
+
+      next unless !str_val.strip.empty? || !strip_line.first.eql?('#')
+
+      indent_val += 1 if res_word.include?(strip_line.first) || strip_line.include?('do')
+      indent_val -= 1 if str_val.strip == 'end'
+
+      next if str_val.strip.empty?
+
+      indent_error(str_val, indx, exp_val, msg)
+      cur_val = indent_val
+    end
+  end
+
+  def indent_error(str_val, indx, exp_val, msg)
+    strip_line = str_val.strip.split(' ')
+    emp = str_val.match(/^\s*\s*/)
+    end_chk = emp[0].size.eql?(exp_val.zero? ? 0 : exp_val - 2)
+
+    if str_val.strip.eql?('end') || strip_line.first == 'elsif' || strip_line.first == 'when'
+      log_error("line:#{indx + 1} #{msg}") unless end_chk
+    elsif !emp[0].size.eql?(exp_val)
+      log_error("line:#{indx + 1} #{msg}")
+    end
+  end
