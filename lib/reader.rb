@@ -2,6 +2,7 @@ require 'colorize'
 
 class Reader
   attr_reader :err, :file_lines, :file_path, :line_count
+
   def initialize(file_path)
     @err = ''
     @file_path = file_path

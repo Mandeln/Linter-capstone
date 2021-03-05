@@ -1,6 +1,6 @@
 require 'colorize'
 require 'strscan'
-require_relative 'reader.rb'
+require_relative 'reader'
 
 class Error
   attr_reader :checker, :errors
@@ -24,28 +24,28 @@ class Error
     msg1 = 'Extra space detected at method beginning'
     msg2 = 'Use empty lines between methods'
 
-    return unless str_val.strip.split(' ').first.eql?('def')
+    return unless str_val.strip.split.first.eql?('def')
 
     log_error("line:#{indx + 2} #{msg1}") if @checker.file_lines[indx + 1].strip.empty?
-    log_error("line:#{indx + 1} #{msg2}") if @checker.file_lines[indx - 1].strip.split(' ').first.eql?('end')
+    log_error("line:#{indx + 1} #{msg2}") if @checker.file_lines[indx - 1].strip.split.first.eql?('end')
   end
 
   def check_do_empty_line(str_val, indx)
     msg = 'Extra space detected at block beginning'
-    return unless str_val.strip.split(' ').include?('do')
+    return unless str_val.strip.split.include?('do')
 
     log_error("line:#{indx + 2} #{msg}") if @checker.file_lines[indx + 1].strip.empty?
   end
 
   def check_class_empty_line(str_val, indx)
     msg = 'Extra space detected at class beginning'
-    return unless str_val.strip.split(' ').first.eql?('class')
+    return unless str_val.strip.split.first.eql?('class')
 
     log_error("line:#{indx + 2} #{msg}") if @checker.file_lines[indx + 1].strip.empty?
-end
+  end
 
   def check_end_empty_line(str_val, indx)
-    return unless str_val.strip.split(' ').first.eql?('end')
+    return unless str_val.strip.split.first.eql?('end')
 
     log_error("line:#{indx} Extra space detected at block end") if @checker.file_lines[indx - 1].strip.empty?
   end
@@ -60,7 +60,7 @@ end
     indent_val = 0
 
     @checker.file_lines.each_with_index do |str_val, indx|
-      strip_line = str_val.strip.split(' ')
+      strip_line = str_val.strip.split
       exp_val = cur_val * 2
       res_word = %w[class def if elsif until module unless begin case]
 
@@ -77,7 +77,7 @@ end
   end
 
   def indent_error(str_val, indx, exp_val, msg)
-    strip_line = str_val.strip.split(' ')
+    strip_line = str_val.strip.split
     emp = str_val.match(/^\s*\s*/)
     end_chk = emp[0].size.eql?(exp_val.zero? ? 0 : exp_val - 2)
 
@@ -121,7 +121,7 @@ end
     keyw_count = 0
     end_count = 0
     @checker.file_lines.each_with_index do |str_val, _index|
-      keyw_count += 1 if @keywords.include?(str_val.split(' ').first) || str_val.split(' ').include?('do')
+      keyw_count += 1 if @keywords.include?(str_val.split.first) || str_val.split.include?('do')
       end_count += 1 if str_val.strip == 'end'
     end
 

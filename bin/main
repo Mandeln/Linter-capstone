@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-require_relative '../lib/linters.rb'
+require_relative '../lib/linters'
 
 check = Check.new(ARGV.first)
 check.check_empty_line
@@ -9,11 +9,11 @@ check.check_tag_error
 check.check_end_error
 
 if check.errors.empty? && check.checker.err_msg.empty?
-    puts 'No offenses found'.colorize(:green)
+  puts 'No offenses found'.colorize(:green)
 else
-    check.errors.uniq.each do |err|
-        puts "#{check.checker.file_path} : #{err.colorize(:red)}"
-      end
-    end
+  check.errors.uniq.each do |err|
+    puts "#{check.checker.file_path} : #{err.colorize(:red)}"
+  end
+end
 
 puts check.checker.err_msg if check.checker.file_lines.empty?
