@@ -88,3 +88,12 @@ end
       log_error("line:#{indx + 1} #{msg}")
     end
   end
+
+  def check_trailing
+    @checker.file_lines.each_with_index do |str_val, index|
+      if str_val[-2] == ' ' && !str_val.strip.empty?
+        @errors << "line:#{index + 1}:#{str_val.size - 1}: Error: Trailing whitespace detected."
+        + " '#{str_val.gsub(/\s*$/, '_')}'"
+      end
+    end
+  end
