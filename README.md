@@ -31,6 +31,12 @@ Additional description about the project and its features.
 - run the command ```cd bin``` to Change the directory 
 - run the command ```ruby enumerables.rb``` and enjoy the methods
 
+# Implemented Checks
+1. check for wrong indentation
+2. check for trailing spaces
+3. check for missing/unexpected tags i.e. '( )', '[ ]', and '{ }'
+4. check missing/unexpected end
+5. check empty line error
 
 ## Authors
 
