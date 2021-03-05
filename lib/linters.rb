@@ -91,7 +91,7 @@ end
   def check_trailing
     @checker.file_lines.each_with_index do |str_val, index|
       if str_val[-2] == ' ' && !str_val.strip.empty?
-        @errors << "line:#{index + 1}:#{str_val.size - 1}: Error: Trailing whitespace detected."
+        @errors << "line:#{index + 1}:#{str_val.size - 1}: Trailing whitespace detected."
         + " '#{str_val.gsub(/\s*$/, '_')}'"
       end
     end
@@ -112,8 +112,8 @@ end
 
       status = open_p.flatten.size <=> close_p.flatten.size
 
-      log_error("line:#{index + 1} Lint/Syntax: Unexpected/Missing token '#{args[2]}' #{args[4]}") if status.eql?(1)
-      log_error("line:#{index + 1} Lint/Syntax: Unexpected/Missing token '#{args[3]}' #{args[4]}") if status.eql?(-1)
+      log_error("line:#{index + 1} Unexpected/Missing token '#{args[2]}' #{args[4]}") if status.eql?(1)
+      log_error("line:#{index + 1} Unexpected/Missing token '#{args[3]}' #{args[4]}") if status.eql?(-1)
     end
   end
 
@@ -126,7 +126,7 @@ end
     end
 
     status = keyw_count <=> end_count
-    log_error("Lint/Syntax: Missing 'end'") if status.eql?(1)
-    log_error("Lint/Syntax: Unexpected 'end'") if status.eql?(-1)
+    log_error(" Missing 'end'") if status.eql?(1)
+    log_error(" Unexpected 'end'") if status.eql?(-1)
   end
 end
