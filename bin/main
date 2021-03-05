@@ -4,8 +4,8 @@ require_relative '../lib/linters.rb'
 check = Check.new(ARGV.first)
 check.check_empty_line
 check.check_indentation
-check.check_tag_error
 check.check_trailing
+check.check_tag_error
 check.check_end_error
 
 if check.errors.empty? && check.checker.err_msg.empty?
