@@ -27,9 +27,9 @@ Additional description about the project and its features.
 
 - To get a local copy up and running the linter follow these simple example steps:
 
-- Clone this repository with git clone ```https://github.com/uwadonat/Enumerables_Rspec/tree/Enumerables_Rspec``` using your terminal or command line.
+- Clone this repository with git clone ```https://github.com/Mandeln/Linter-css.git``` using your terminal or command line.
 - run the command ```cd bin``` to Change the directory 
-- run the command ```ruby enumerables.rb``` and enjoy the methods
+- run the command ```ruby main`` and enjoy the parser
 
 # Implemented Checks
 1. check for wrong indentation
