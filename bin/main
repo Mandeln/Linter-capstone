@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 require_relative '../lib/linters'
 
 check = Check.new(ARGV.first)
