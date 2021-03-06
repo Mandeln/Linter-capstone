@@ -1,7 +1,6 @@
-require_relative '../lib/linters.rb'
-include RSpec
+require_relative '../lib/linters'
 
-describe Error do
+RSpec.describe Error do
   let(:checker) { Error.new('tester.rb') }
 
   describe '#check_empty_line' do
