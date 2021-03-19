@@ -1,123 +1,102 @@
-require 'colorize'
-require 'strscan'
-require_relative 'reader'
+require_relative 'error_printer'
 
-class Error
-  attr_reader :checker, :errors
+class Linter
+  attr_reader :errors, :open_blocks, :open_comment, :indent_size, :num_selectors, :current_line, :current_line_index, :closed_block
 
-  def initialize(file_path)
-    @checker = Reader.new(file_path)
+  def initialize
+    @current_line_index = 0
+    @current_line = ''
     @errors = []
-    @keywords = %w[if do def case class unless begin module]
+    @open_blocks = 0
+    @open_comment = false
+    @closed_block = false
+    @indent_size = 2
+    @num_selectors = 0
   end
 
-  def check_empty_line
-    @checker.file_lines.each_with_index do |str_val, indx|
-      check_def_empty_line(str_val, indx)
-      check_do_empty_line(str_val, indx)
-      check_class_empty_line(str_val, indx)
-      check_end_empty_line(str_val, indx)
+  def lint_file(lines)
+    lines.each do |line|
+      next_line(line)
+      process_comment = check_comment
+      next if process_comment
+
+      trailing_space
+      remove_comment
+      check_new_line
+      check_block
+      end_char
+      check_end
     end
   end
 
-  def check_def_empty_line(str_val, indx)
-    msg1 = 'Extra space detected at method beginning'
-    msg2 = 'Use empty lines between methods'
-
-    return unless str_val.strip.split.first.eql?('def')
-
-    log_error("line:#{indx + 2} #{msg1}") if @checker.file_lines[indx + 1].strip.empty?
-    log_error("line:#{indx + 1} #{msg2}") if @checker.file_lines[indx - 1].strip.split.first.eql?('end')
+  def next_line(line)
+    @current_line_index += 1
+    @current_line = line
   end
 
-  def check_do_empty_line(str_val, indx)
-    msg = 'Extra space detected at block beginning'
-    return unless str_val.strip.split.include?('do')
-
-    log_error("line:#{indx + 2} #{msg}") if @checker.file_lines[indx + 1].strip.empty?
+  def check_comment
+    @open_comment = @current_line.include?('/*')
+    @open_comment &&= !@current_line.include?('*/')
+    @open_comment || stripped.start_with?('*/') || stripped.start_with?('*/')
   end
 
-  def check_class_empty_line(str_val, indx)
-    msg = 'Extra space detected at class beginning'
-    return unless str_val.strip.split.first.eql?('class')
-
-    log_error("line:#{indx + 2} #{msg}") if @checker.file_lines[indx + 1].strip.empty?
+  def check_block
+    check_indentation unless check_close_block(check_open_block)
   end
 
-  def check_end_empty_line(str_val, indx)
-    return unless str_val.strip.split.first.eql?('end')
+  def check_new_line
+    contain_end = stripped.end_with?('}')
+    bool = @closed_block && stripped.length.positive? && !contain_end
+    error_message('Expected empty line', 'warning') if bool
 
-    log_error("line:#{indx} Extra space detected at block end") if @checker.file_lines[indx - 1].strip.empty?
+    @closed_block = false
   end
 
-  def log_error(error_msg)
-    @errors << error_msg
+  def remove_comment
+    start_index = @current_line.index('/*')
+    stop_index = @current_line.index('*/')
+
+    return if start_index.nil?
+
+    first_half = @current_line[0...start_index]
+    line_len = @current_line.length
+    second_half = ''
+    second_half = @current_line[stop_index + 2...line_len] unless stop_index.nil?
+
+    @current_line = first_half + second_half
+  end
+
+  def end_char
+    return unless stripped.length.positive?
+
+    matches = @current_line.scan(/[;{}]/)
+
+    if matches.size.positive?
+      return if stripped.end_with?(matches[0])
+
+      error_message("Expected new line after #{matches[0]}", 'warning')
+    else
+      return if stripped.end_with?(',')
+
+      error_message('Missing an ; { } or [ ]'.colorize(:blue))
+    end
   end
 
   def check_indentation
-    msg = 'Use 2 spaces for indentation.'
-    cur_val = 0
-    indent_val = 0
+    return unless stripped.length.positive?
 
-    @checker.file_lines.each_with_index do |str_val, indx|
-      strip_line = str_val.strip.split
-      exp_val = cur_val * 2
-      res_word = %w[class def if elsif until module unless begin case]
+    expect_space = @open_blocks * @indent_size
+    current_space = @current_line[/\A */].size
+    return unless current_space != expect_space
 
-      next unless !str_val.strip.empty? || !strip_line.first.eql?('#')
-
-      indent_val += 1 if res_word.include?(strip_line.first) || strip_line.include?('do')
-      indent_val -= 1 if str_val.strip == 'end'
-
-      next if str_val.strip.empty?
-
-      indent_error(str_val, indx, exp_val, msg)
-      cur_val = indent_val
-    end
+    error_message("Expected #{expect_space} spaces, detected #{current_space}")
   end
 
-  def indent_error(str_val, indx, exp_val, msg)
-    strip_line = str_val.strip.split
-    emp = str_val.match(/^\s*\s*/)
-    end_chk = emp[0].size.eql?(exp_val.zero? ? 0 : exp_val - 2)
-
-    if str_val.strip.eql?('end') || strip_line.first == 'elsif' || strip_line.first == 'when'
-      log_error("line:#{indx + 1} #{msg}") unless end_chk
-    elsif !emp[0].size.eql?(exp_val)
-      log_error("line:#{indx + 1} #{msg}")
-    end
+  def trailing_space
+    error_message('Trailing space', 'warning') if @current_line.end_with?(' ')
   end
 
-  def check_trailing
-    @checker.file_lines.each_with_index do |str_val, index|
-      if str_val[-2] == ' ' && !str_val.strip.empty?
-        @errors << "line:#{index + 1}:#{str_val.size - 1}: Trailing whitespace detected."
-        + " '#{str_val.gsub(/\s*$/, '_')}'"
-      end
-    end
-  end
-
-  def tag_error
-    check_tag_error(/\(/, /\)/, '(', ')', 'Parenthesis')
-    check_tag_error(/\[/, /\]/, '[', ']', 'Square Bracket')
-    check_tag_error(/\{/, /\}/, '{', '}', 'Curly Bracket')
-  end
-
-  def check_tag_error(*args)
-    @checker.file_lines.each_with_index do |str_val, index|
-      open_p = []
-      close_p = []
-      open_p << str_val.scan(args[0])
-      close_p << str_val.scan(args[1])
-
-      status = open_p.flatten.size <=> close_p.flatten.size
-
-      log_error("line:#{index + 1} Unexpected/Missing token '#{args[2]}' #{args[4]}") if status.eql?(1)
-      log_error("line:#{index + 1} Unexpected/Missing token '#{args[3]}' #{args[4]}") if status.eql?(-1)
-    end
-  end
-
-  def check_end_error
+  def check_end
     keyw_count = 0
     end_count = 0
     @checker.file_lines.each_with_index do |str_val, _index|
@@ -126,7 +105,17 @@ class Error
     end
 
     status = keyw_count <=> end_count
-    log_error(" Missing 'end'") if status.eql?(1)
-    log_error(" Unexpected 'end'") if status.eql?(-1)
+    error_message(" Missing 'end'") if status.eql?(1)
+    error_message(" Unexpected 'end'") if status.eql?(-1)
+  end
+
+  private
+
+  def stripped
+    @current_line.strip
+  end
+
+  def error_message(message, severity = 'error')
+    @errors.push(ErrorFile.new(@current_line_index, message, severity))
   end
 end

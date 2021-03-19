@@ -1,17 +1,16 @@
-require 'colorize'
+class Read
+  attr_reader :path_to, :error_msg, :content
 
-class Reader
-  attr_reader :err, :file_lines, :file_path, :line_count
-
-  def initialize(file_path)
-    @err = ''
-    @file_path = file_path
+  def initialize(path)
+    @path_to = path
+    @error_msg = ''
     begin
-      @file_lines = File.readlines(@file_path)
-      @line_count = @file_lines.size
-    rescue StandardError => e
-      @file_lines = []
-      @err = "Check file name and path \n".colorize(:light_red) + e.to_s.colorize(:red)
+      File.open(path) do |file|
+        @content = file.readlines.map(&:chomp)
+      end
+    rescue StandardError
+      @content = []
+      @error_msg = 'File path invalid'
     end
   end
 end

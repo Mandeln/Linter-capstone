@@ -1,40 +1,54 @@
+require_relative '../lib/error_printer'
 require_relative '../lib/linters'
+require_relative '../lib/reader'
 
-RSpec.describe Error do
-  let(:checker) { Error.new('tester.rb') }
-
-  describe '#check_empty_line' do
-    it 'returns error when extra empty lines' do
-      checker.check_empty_line
-      expect(checker.errors[0]).to eql('line:6 Extra space detected at block end')
-    end
+describe Read do
+  it 'should return an error invalid path given' do
+    file = Read.new('./aloha')
+    expect(file.error_msg).to eql('File path invalid')
   end
-
-  describe '#check_indentation' do
-    it 'returns error when wrong indentation level' do
-      checker.check_indentation
-      expect(checker.errors[0]).to eql('line:4 Use 2 spaces for indentation.')
-    end
+  it 'should return an error if nothing given' do
+    file = Read.new(' ')
+    expect(file.error_msg).to eql('File path invalid')
   end
-
-  describe '#check_trailing' do
-    it 'returns error when extra whitespace' do
-      checker.check_trailing_spaces
-      expect(checker.errors[0]).to eql('line:4:19: Trailing whitespace detected.')
-    end
+  it 'should return the content in the file' do
+    file = Read.new('./tester.rb')
+    expect(file.content.length.positive?).to eql(false)
   end
+end
 
-  describe '#check_tag_error' do
-    it 'returns error when wrong tag syntax is used' do
-      checker.check_tag_error
-      expect(checker.errors[0]).to eql("line:5 Unexpected/Missing token ']' Square Bracket")
+describe Linter do
+  describe '#lint_file' do
+    it 'should return all errors in the file if tester given' do
+      lint_test = Linter.new
+      file = Read.new('./tester.rb')
+      lint_test.lint_file(file.content)
+      expect(lint_test.errors.length).to eql(0)
     end
-  end
-
-  describe '#check_end_error' do
-    it "returns error missing or unexpected 'end'" do
-      checker.check_end_error
-      expect(checker.errors[0]).to eql("Missing 'end'")
+    it 'should return and empty array if nothing given' do
+      lint_test = Linter.new
+      lint_test.lint_file([])
+      expect(lint_test.errors.length).to eql(0)
+    end
+    it 'should return an empty array' do
+      lint_test = Linter.new
+      file = Read.new('./tester.rb')
+      lint_test.lint_file(file.content)
+      expect(lint_test.errors.empty?).to eql(true)
+    end
+    it 'should return false ' do
+      lint_test = Linter.new
+      file = Read.new('./tester.rb')
+      lint_test.lint_file(file.content)
+      expect(lint_test.errors.empty?).to_not eql(false)
+    end
+    describe '#next_line' do
+      it 'should return the next line' do
+        lint_test = Linter.new
+        file = Read.new('./tester.rb')
+        lint_test.lint_file(file.content)
+        expect(lint_test.next_line(1)).to eql(1)
+      end
     end
   end
 end
