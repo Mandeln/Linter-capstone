@@ -1,0 +1,14 @@
+require_relative '../lib/linters'
+require_relative '../lib/reader'
+
+linter = Linter.new
+
+file = Read.new(ARGV.first)
+linter.lint_file(file.content)
+errors = linter.errors
+
+errors.each do |val|
+  puts "#{val.color_severity}  line #{val.line}: #{val.error}"
+end
+
+puts 'No offenses'.colorize(:green) unless errors.length.positive?
