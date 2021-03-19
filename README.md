@@ -36,21 +36,21 @@ Additional description about the project and its features.
 4. check missing/unexpected end
 5. check empty line error
 
-# Check examples
+## Check examples
 
-- INDENTATION
+# INDENTATION
 ![screenshot](./assets/0.png)
 
-- TRAILING SPACES
+# TRAILING SPACES
 ![screenshot](./assets/2.png)
 
-- TAG ERROR
+# TAG ERROR
 ![screenshot](./assets/3.png)
 
-- EMPTY LINE ERROR
+# EMPTY LINE ERROR
 ![screenshot](./assets/4.png)
 
-- MISSING/UNEXPECTED END
+# MISSING/UNEXPECTED END
 ![screenshot](./assets/5.png)
 
 ## Authors
