@@ -4,8 +4,6 @@
 
 > This is the readMe for the Linter Capstone Project. 
 
-![screenshot](https://github.com/uwadonat/Enumerables_Rspec/blob/Enumerables_Rspec/images/screenshoot.JPG)
-
 Good day world
 
 Lets welcome one more code in the line of many more to come during our time here at Microverse. -Matija Maksimovic
@@ -20,14 +18,14 @@ Additional description about the project and its features.
 
 ## Test
 - in order to run test, you have to install rspec in your cmd run $gem install rspec
-- run test by cd into spec file and use the command   ```rspec testrspec.rb```   
+- run test by cd into spec file and use the command   ```rspec spec.rb```   
 
 
 ## Run Program
 
 - To get a local copy up and running the linter follow these simple example steps:
 
-- Clone this repository with git clone ```https://github.com/Mandeln/Linter-css.git``` using your terminal or command line.
+- Clone this repository with git clone ```https://github.com/Mandeln/Linter-capstone.git``` using your terminal or command line.
 - run the command ```cd bin``` to Change the directory 
 - run the command ```ruby main`` and enjoy the parser
 
@@ -37,6 +35,23 @@ Additional description about the project and its features.
 3. check for missing/unexpected tags i.e. '( )', '[ ]', and '{ }'
 4. check missing/unexpected end
 5. check empty line error
+
+# Check examples
+
+- INDENTATION
+![screenshot](./assets/0.png)
+
+- TRAILING SPACES
+![screenshot](./assets/2.png)
+
+- TAG ERROR
+![screenshot](./assets/3.png)
+
+- EMPTY LINE ERROR
+![screenshot](./assets/4.png)
+
+- MISSING/UNEXPECTED END
+![screenshot](./assets/5.png)
 
 ## Authors
 
